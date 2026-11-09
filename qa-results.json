@@ -1,0 +1,210 @@
+{
+  "timestamp": "2026-11-09T23:50:00+05:30",
+  "project": "ReRider Rentals",
+  "version": "0.2.1",
+  "phase": "Phase 2 — Admin Fleet Management (Directives Verified)",
+  "environment": {
+    "node": "v25.0.0",
+    "next": "15.5.29",
+    "react": "19.3.1",
+    "drizzleOrm": "0.38.4",
+    "vitest": "3.2.7",
+    "typescript": "5.9.3",
+    "os": "Windows_NT"
+  },
+  "summary": {
+    "status": "PASS",
+    "totalTestSuites": 11,
+    "passedTestSuites": 11,
+    "failedTestSuites": 0,
+    "totalTests": 83,
+    "passedTests": 83,
+    "failedTests": 0,
+    "skippedTests": 0,
+    "durationMs": 1060
+  },
+  "testExecutionBreakdown": [
+    {
+      "suite": "Vehicle Validation & Fleet Management",
+      "file": "src/tests/vehicles.test.ts",
+      "total": 31,
+      "passed": 31,
+      "failed": 0,
+      "tests": [
+        "formats various Indian vehicle registration styles into standard uppercase hyphenated format",
+        "validates a correct Kerala registration number",
+        "rejects invalid registration formats",
+        "rejects negative or zero purchase cost",
+        "rejects negative odometer readings",
+        "accepts valid status and audit reason >= 5 characters",
+        "rejects missing or short reason (< 5 characters)",
+        "validates correct package pricing configuration",
+        "rejects zero or negative daily rate",
+        "rejects documents where validUntil is before validFrom",
+        "accepts documents with valid date range",
+        "detects an expired document",
+        "detects a document expiring soon (within 30 days)",
+        "detects a healthy valid document (> 30 days)",
+        "disallows transition to the identical status",
+        "enforces mandatory audit reason with min 5 characters",
+        "disallows transitions from RETIRED status (terminal state)",
+        "disallows ACCIDENT vehicles from jumping directly to AVAILABLE or RENTED",
+        "disallows MAINTENANCE vehicles from jumping directly to RENTED",
+        "enforces Kerala MVD compliance gate before allowing AVAILABLE status",
+        "allows valid permitted operational transitions",
+        "retrieves fleet vehicles and includes initial Honda Dio",
+        "filters fleet vehicles by status",
+        "filters fleet vehicles by search query",
+        "retrieves full 360 aggregate data for a vehicle",
+        "rejects vehicle creation with duplicate registration number",
+        "updates vehicle specifications and current odometer",
+        "executes vehicle operational status change and logs audit history",
+        "upserts vehicle-specific pricing without affecting global defaults",
+        "enforces that onboarded vehicle with PENDING_REVIEW compliance starts as UNAVAILABLE",
+        "computes vehicle profitability strictly segregating CapEx, OpEx, and deposit liabilities"
+      ]
+    },
+    {
+      "suite": "Transactional Vehicle Replacement Workflow",
+      "file": "src/tests/vehicle-replacement.test.ts",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "tests": [
+        "executes vehicle replacement preserving booking identity, rider identity, and pricing snapshots",
+        "rejects replacement when breakdown odometer is lower than starting odometer",
+        "rejects replacement if replacement vehicle is under MAINTENANCE or ACCIDENT",
+        "enforces assignment exclusivity: blocks replacement vehicle with existing active rental"
+      ]
+    },
+    {
+      "suite": "Design System & Responsive Accessibility Audit",
+      "file": "src/tests/responsive-ui.test.ts",
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "tests": [
+        "confirms that white text on brand orange FAILS WCAG AA",
+        "confirms that charcoal text on brand orange PASSES WCAG AA with >= 4.5:1 ratio",
+        "confirms that charcoal text on card white passes WCAG AAA with >= 7:1 ratio",
+        "confirms that muted slate text on card white passes WCAG AA for body text",
+        "supports Ultra-compact Mobile (360 px) with high touch target ergonomics",
+        "supports Standard iPhone Mobile (390 px) with high touch target ergonomics",
+        "supports Tablet / iPad (768 px) with high touch target ergonomics",
+        "supports Desktop Console (1440 px) with high touch target ergonomics",
+        "verifies horizontal filter lane styles preserve zero-overflow scroll behavior",
+        "verifies border radius constraints (no oversized pills on cards)"
+      ]
+    },
+    {
+      "suite": "Pricing & Package Calculations",
+      "file": "src/tests/pricing.test.ts",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "tests": [
+        "correctly calculates 14-day package for Honda Dio @ ₹450/day",
+        "correctly calculates 26-day package for Honda Dio @ ₹400/day",
+        "rejects invalid pricing configuration inputs",
+        "correctly calculates excess kilometre charges on return"
+      ]
+    },
+    {
+      "suite": "Financial Accounting & Segregated Deposits",
+      "file": "src/tests/financials.test.ts",
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "tests": [
+        "correctly allocates ₹1,000 token to RENTAL_REVENUE (not deposit)",
+        "correctly allocates ₹4,000 security deposit to SECURITY_DEPOSIT_LIABILITY",
+        "calculates full deposit refund when zero damage occurred",
+        "calculates partial deposit refund with approved damage deduction",
+        "handles damage exceeding deposit liability without negative refund",
+        "enforces cancellation policy: rider cancellation retains token",
+        "enforces cancellation policy: owner cancellation grants 100% refund",
+        "computes fleet profitability strictly segregating deposit liabilities from revenue"
+      ]
+    },
+    {
+      "suite": "Vehicle Assignments & Replacements",
+      "file": "src/tests/assignments.test.ts",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "tests": [
+        "prohibits assignment of MAINTENANCE or ACCIDENT held vehicles",
+        "enforces vehicle assignment exclusivity: no dual active assignments for a vehicle",
+        "enforces rider assignment exclusivity: no simultaneous active rentals for a rider",
+        "executes vehicle replacement workflow correctly preserving booking ID & pricing continuity"
+      ]
+    },
+    {
+      "suite": "Maintenance Safety Gate & Release Inspection",
+      "file": "src/tests/maintenance.test.ts",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "tests": [
+        "prohibits release while repairs are still in progress",
+        "blocks release if release inspection with photos is missing",
+        "blocks release if admin sign-off is missing",
+        "allows release to AVAILABLE only when both inspection and admin approval exist"
+      ]
+    },
+    {
+      "suite": "Rider KYC & Regulatory Age Gate",
+      "file": "src/tests/kyc.test.ts",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "tests": [
+        "accurately calculates rider age from date of birth",
+        "rejects underage riders below 20 years old",
+        "rejects riders with unverified Driving Licence or Aadhaar",
+        "approves compliant riders aged 20+ with verified documents"
+      ]
+    },
+    {
+      "suite": "Domain Edge Cases & Boundary Conditions",
+      "file": "src/tests/edge-cases.test.ts",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "tests": [
+        "handles negative inputs and invalid odometer deltas in pricing",
+        "handles financial edge cases and negative deduction checks",
+        "handles vehicle asset statuses and invalid replacement attempts",
+        "formats full Kolkata datetime strings"
+      ]
+    },
+    {
+      "suite": "PostgreSQL Schema Structure & Columns",
+      "file": "src/tests/schema.test.ts",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        "exports all 9 required domain modules and tables",
+        "validates critical table columns and financial types"
+      ]
+    },
+    {
+      "suite": "Authentication & Session Security",
+      "file": "src/tests/auth.test.ts",
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "tests": [
+        "hashes and verifies passwords reliably with bcrypt",
+        "enforces SUPER_ADMIN full access hierarchy",
+        "correctly permits ADMIN and restricts RIDER from admin functions",
+        "generates and cryptographically verifies session tokens",
+        "rejects tampered JWT tokens",
+        "formats Indian Rupee (INR) currency correctly",
+        "formats dates in Asia/Kolkata timezone",
+        "reports database client pool status gracefully"
+      ]
+    }
+  ]
+}

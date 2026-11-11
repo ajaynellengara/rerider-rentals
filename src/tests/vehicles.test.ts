@@ -21,9 +21,9 @@ import {
 describe('Vehicle Validation Schemas', () => {
   describe('Registration Number Formatting & Validation', () => {
     it('formats various Indian vehicle registration styles into standard uppercase hyphenated format', () => {
-      expect(formatRegistrationNumber('kl-07-bw-1234')).toBe('KL-00-AA-0000');
-      expect(formatRegistrationNumber('kl07bw1234')).toBe('KL-00-AA-0000');
-      expect(formatRegistrationNumber('KL 7 BW 1234')).toBe('KL-00-AA-0000');
+      expect(formatRegistrationNumber('kl-07-bw-1234')).toBe('KL-07-BW-1234');
+      expect(formatRegistrationNumber('kl07bw1234')).toBe('KL-07-BW-1234');
+      expect(formatRegistrationNumber('KL 7 BW 1234')).toBe('KL-07-BW-1234');
     });
 
     it('validates a correct Kerala registration number', () => {

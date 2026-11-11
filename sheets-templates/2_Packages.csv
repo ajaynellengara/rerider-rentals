@@ -1,0 +1,3 @@
+Package ID,Package Name,Duration Days,Daily Rate INR,Booking Token INR,Security Deposit INR,Active,Admin Notes
+PKG-001,14-Day Commercial Standard,14,450.00,1000.00,4000.00,YES,Standard gig delivery package (Swiggy/Zomato)
+PKG-002,26-Day Monthly Package,26,400.00,1000.00,4000.00,YES,Monthly commuter package

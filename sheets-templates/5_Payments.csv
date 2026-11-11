@@ -1,0 +1,3 @@
+Payment ID,Rental ID,Payment Type,Amount INR,Payment Status,Payment Method,Reference Number,Paid At,Recorded By
+PAY-0001,RNT-0001,TOKEN,1000.00,PENDING,UPI,,2026-11-12 10:30:00,Admin
+PAY-0002,RNT-0001,SECURITY_DEPOSIT,4000.00,PENDING,UPI,,2026-11-12 10:30:00,Admin

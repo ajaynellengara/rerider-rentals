@@ -10,6 +10,7 @@ import { canModifyFinancials } from '@/lib/auth/roles'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { completeRentalReturn, createRentalRequest, recordBookingPayment, settleSecurityDeposit, startConfirmedRental, updateBookingStatus } from '@/services/bookings'
+import { appendBookingToSheet } from '@/services/sheets-sync'
 
 const rentalRequestSchema = z.object({
   vehicleId: z.string().uuid(),
@@ -18,6 +19,74 @@ const rentalRequestSchema = z.object({
 })
 
 export type BookingActionState = { success: boolean; message?: string; error?: string }
+
+export type DirectBookingState = {
+  success: boolean
+  message?: string
+  error?: string
+  bookingNumber?: string
+  whatsappUrl?: string
+}
+
+export async function submitDirectSheetBookingAction(
+  _prev: DirectBookingState,
+  formData: FormData
+): Promise<DirectBookingState> {
+  const name = formData.get('riderName')?.toString().trim()
+  const phone = formData.get('phone')?.toString().trim()
+  const packageCode = formData.get('packageCode')?.toString().trim() || 'PKG-14D'
+  const startDate = formData.get('startDate')?.toString().trim() || new Date().toISOString().slice(0, 10)
+  const dlNumber = formData.get('dlNumber')?.toString().trim() || ''
+
+  if (!name || name.length < 2) return { success: false, error: 'Please enter your full name.' }
+  if (!phone || phone.length < 10) return { success: false, error: 'Please enter a valid 10-digit phone number.' }
+
+  const is14d = packageCode === 'PKG-14D'
+  const durationDays = is14d ? 14 : 26
+  const totalRent = is14d ? 6300 : 10400
+  const token = 1000
+  const deposit = 4000
+  const packageName = is14d ? '14-Day Commercial Standard' : '26-Day Monthly Package'
+
+  const dateStr = new Date().toISOString().slice(0, 10).replaceAll('-', '')
+  const randomSuffix = crypto.randomUUID().slice(0, 6).toUpperCase()
+  const bookingNumber = `RR-${dateStr}-${randomSuffix}`
+
+  // Append to Google Sheet (non-blocking)
+  await appendBookingToSheet({
+    bookingId: crypto.randomUUID(),
+    bookingNumber,
+    riderName: name,
+    phone,
+    packageName,
+    dates: `${startDate} (${durationDays}d)`,
+    totalRent,
+    tokenAmount: token,
+    depositAmount: deposit,
+    status: 'PENDING',
+  }).catch(() => undefined)
+
+  // Construct WhatsApp direct confirmation URL to the owner
+  const whatsappNumber = process.env.RERIDER_SUPPORT_WHATSAPP || '919847000000'
+  const textMsg = encodeURIComponent(
+    `Hello ReRider Rentals,\n\nI want to book the Honda Dio 110cc scooter (${packageName}).\n` +
+    `• Booking Ref: ${bookingNumber}\n` +
+    `• Name: ${name}\n` +
+    `• Phone: ${phone}\n` +
+    (dlNumber ? `• DL: ${dlNumber}\n` : '') +
+    `• Start Date: ${startDate}\n` +
+    `• Rent: ₹${totalRent} | Token: ₹${token} | Deposit: ₹${deposit}\n\n` +
+    `Please confirm vehicle availability.`
+  )
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${textMsg}`
+
+  return {
+    success: true,
+    bookingNumber,
+    message: `Booking request ${bookingNumber} has been added to the operations sheet.`,
+    whatsappUrl,
+  }
+}
 
 export async function requestRentalAction(_previous: BookingActionState, formData: FormData): Promise<BookingActionState> {
   try {
@@ -32,6 +101,35 @@ export async function requestRentalAction(_previous: BookingActionState, formDat
     const [profile] = await db.select().from(schema.riderProfiles).where(eq(schema.riderProfiles.userId, session.userId)).limit(1)
     if (!profile) return { success: false, error: 'Complete your rider profile before requesting a rental.' }
     const result = await createRentalRequest({ riderId: profile.id, ...parsed.data })
+
+    // Outbound sync to Google Sheets (non-blocking)
+    db.select({
+      snapshot: schema.bookingPriceSnapshots,
+      pkg: schema.rentalPackages,
+    })
+      .from(schema.bookingPriceSnapshots)
+      .innerJoin(schema.bookings, eq(schema.bookings.id, schema.bookingPriceSnapshots.bookingId))
+      .innerJoin(schema.rentalPackages, eq(schema.rentalPackages.id, schema.bookings.packageId))
+      .where(eq(schema.bookingPriceSnapshots.bookingId, result.bookingId))
+      .limit(1)
+      .then(([info]) => {
+        if (info) {
+          appendBookingToSheet({
+            bookingId: result.bookingId,
+            bookingNumber: result.bookingNumber,
+            riderName: profile.fullName,
+            phone: profile.phone,
+            packageName: info.pkg.name,
+            dates: `${parsed.data.startDate} (${info.pkg.durationDays}d)`,
+            totalRent: Number(info.snapshot.totalRentalPrice),
+            tokenAmount: Number(info.snapshot.bookingTokenAmount),
+            depositAmount: Number(info.snapshot.securityDepositAmount),
+            status: 'PENDING',
+          }).catch(() => undefined)
+        }
+      })
+      .catch(() => undefined)
+
     revalidatePath('/rider')
     revalidatePath('/rider/my-rental')
     revalidatePath('/admin/bookings')

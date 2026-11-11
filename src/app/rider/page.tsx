@@ -8,6 +8,7 @@ import { getSession } from '@/lib/auth/session'
 import { checkDatabaseConnection, db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { getRiderRentals } from '@/services/bookings'
+import { DirectSheetBookingForm } from '@/features/bookings/components/direct-sheet-booking-form'
 
 const activeStatuses = ['PENDING', 'CONFIRMED', 'ACTIVE', 'EXTENSION_PENDING', 'OVERDUE']
 const dateLabel = (date: string) => new Intl.DateTimeFormat('en-IN', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`))
@@ -26,7 +27,33 @@ export default async function RiderDashboardPage() {
   if (!session) redirect('/login?next=/rider')
   if (session.role !== 'RIDER') redirect('/admin')
   const health = await checkDatabaseConnection()
-  if (!health.connected) return <><Card><CardContent className="p-5"><h1 className="font-semibold">Rider rentals are temporarily unavailable</h1><p className="mt-2 text-sm text-slate-600">The rental database could not be reached. Please try again later.</p></CardContent></Card><RiderFooter /></>
+  if (!health.connected) {
+    return (
+      <div className="space-y-6">
+        <section className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-[.14em] text-orange-700">Rider Portal</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Welcome to ReRider Rentals</h1>
+              <p className="mt-1 text-sm text-slate-500">Kochi Hub (Ernakulam Central) • Direct Operations Booking</p>
+            </div>
+            <Badge variant="success">Online Operations</Badge>
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-slate-900">Available Scooter & Packages</h2>
+            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              Instant Booking
+            </span>
+          </div>
+          <DirectSheetBookingForm />
+        </section>
+        <RiderFooter />
+      </div>
+    );
+  }
 
   const [profile] = await db.select().from(schema.riderProfiles).where(eq(schema.riderProfiles.userId, session.userId)).limit(1)
   if (!profile) return <><Card><CardContent className="p-5 text-sm text-slate-600">Your rider profile is not linked to this account yet. Please contact operations.</CardContent></Card><RiderFooter /></>
@@ -130,7 +157,7 @@ export default async function RiderDashboardPage() {
             <CardContent className="flex items-start gap-3 p-5">
               <Bike className="mt-0.5 h-5 w-5 text-slate-400" />
               <div>
-                <h3 className="font-semibold text-slate-900">You don't have an active rental.</h3>
+                <h3 className="font-semibold text-slate-900">You don&apos;t have an active rental.</h3>
                 <p className="mt-1 text-sm text-slate-600">
                   {status.label === 'Active'
                     ? 'Contact ReRider support to find an available rental package.'

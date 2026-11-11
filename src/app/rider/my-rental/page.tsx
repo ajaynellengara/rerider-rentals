@@ -11,6 +11,7 @@ import * as schema from '@/lib/db/schema'
 import { getRiderRentals } from '@/services/bookings'
 import { getRiderExtensionRequests } from '@/services/rider-portal'
 import { ExtensionRequestForm } from '@/features/rider/components/rider-forms'
+import { DirectSheetBookingForm } from '@/features/bookings/components/direct-sheet-booking-form'
 
 const currency = (value: number) => `₹${value.toLocaleString('en-IN')}`
 const daysRemaining = (endDate: string) => Math.max(0, Math.ceil((Date.parse(endDate) - Date.now()) / 86400000))
@@ -21,7 +22,20 @@ export default async function MyRentalPage() {
   if (!session) redirect('/login?next=/rider/my-rental')
   if (session.role !== 'RIDER') redirect('/admin')
   const health = await checkDatabaseConnection()
-  if (!health.connected) return <Card><CardHeader><CardTitle>Rentals are temporarily unavailable</CardTitle></CardHeader><CardContent><p className="text-sm text-slate-600">The rental database is offline. Your booking requests and rental records have not been changed. Please try again later.</p></CardContent></Card>
+  if (!health.connected) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Link href="/rider" className="text-sm text-slate-500 hover:text-slate-900">← Rider home</Link>
+          <h1 className="mt-2 text-2xl font-bold text-slate-900">Request a Rental</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Book the Honda Dio 110cc scooter. Your request is sent directly to the operations Google Sheet.
+          </p>
+        </div>
+        <DirectSheetBookingForm />
+      </div>
+    )
+  }
   const [profile] = await db.select().from(schema.riderProfiles).where(eq(schema.riderProfiles.userId, session.userId)).limit(1)
   if (!profile) return <Card><CardHeader><CardTitle>Rider profile needed</CardTitle></CardHeader><CardContent><p className="text-sm text-slate-600">Your account is not linked to a rider profile yet. Contact operations to complete setup.</p></CardContent></Card>
   const [rentals, extensions] = await Promise.all([getRiderRentals(profile.id), getRiderExtensionRequests(profile.id)])

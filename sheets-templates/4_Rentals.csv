@@ -1,0 +1,2 @@
+Rental ID,Booking Number,Rider ID,Package ID,Vehicle ID,Request Date,Start Date,Expected Return Date,Rental Status,Package Name Snapshot,Duration Days Snapshot,Daily Rate Snapshot INR,Token Snapshot INR,Deposit Snapshot INR,Total Rent INR,Admin Notes
+RNT-0001,RR-20261112-A101,RID-0001,PKG-001,VEH-001,2026-11-12,2026-11-12,2026-11-25,PENDING,14-Day Commercial Standard,14,450.00,1000.00,4000.00,6300.00,Intake booking from mobile portal

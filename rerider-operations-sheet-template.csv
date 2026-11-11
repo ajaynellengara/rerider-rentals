@@ -1,0 +1,2 @@
+Timestamp,Booking Number,Rider Name,Phone,Package,Rental Dates,Total Rent (₹),Token (₹),Deposit (₹),Owner Action,Token Paid,Rent Balance Paid,Deposit Paid,Handover KM,Return KM,Sync Status
+2026-11-12 10:30:00,RR-20261112-A101,Rahul Varma,+91 98470 12345,14-Day Standard,2026-11-12 to 2026-11-25,6300,1000,4000,PENDING,NO,NO,NO,,,Pending Review

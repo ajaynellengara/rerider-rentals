@@ -67,7 +67,7 @@ export default async function AdminBookingsPage() {
               <Button type="submit" size="sm">Complete handover and start rental</Button>
             </form> : <p className="text-xs text-slate-500">Record the token, rental balance, and refundable deposit after receipt to enable handover.</p>}
           </div>}
-          {booking.status === 'ACTIVE' && <form action={completeRentalAction} className="grid gap-3 rounded-lg border border-slate-200 p-3 md:grid-cols-4">
+          {['ACTIVE', 'OVERDUE'].includes(booking.status) && <form action={completeRentalAction} className="grid gap-3 rounded-lg border border-slate-200 p-3 md:grid-cols-4">
             <input type="hidden" name="bookingId" value={booking.id} />
             <label className="text-xs font-medium text-slate-700">Return odometer (km)<input name="endingOdometer" type="number" min="0" required className="mt-1 block h-10 w-full rounded-md border border-slate-300 px-3 text-sm" /></label>
             <label className="text-xs font-medium text-slate-700">Fuel level (%)<input name="fuelPercentage" type="number" min="0" max="100" defaultValue="50" required className="mt-1 block h-10 w-full rounded-md border border-slate-300 px-3 text-sm" /></label>
@@ -91,3 +91,4 @@ export default async function AdminBookingsPage() {
     </div>
   </div>
 }
+

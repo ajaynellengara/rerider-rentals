@@ -34,7 +34,9 @@ export default function LoginPage() {
         <div className="flex items-center gap-2 rounded-lg border bg-white p-3"><Bike className="h-4 w-4 text-slate-500" /> Rider portal</div>
       </div>
       <p className="flex items-center justify-center gap-1 text-center text-xs text-slate-500"><ShieldCheck className="h-3.5 w-3.5" /> Rental requests require verified rider details and operations approval.</p>
+      <p className="text-center text-sm text-slate-600">New to ReRider? <Link href="/register" className="font-semibold text-orange-700 hover:underline">Create a rider account</Link></p>
       <p className="text-center text-sm"><Link href="/" className="text-slate-600 hover:text-slate-900">← Back to home</Link></p>
     </div>
   </main>
 }
+

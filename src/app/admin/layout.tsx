@@ -28,6 +28,8 @@ const navItems = [
   { name: 'Fleet / Vehicles', href: '/admin/vehicles', icon: Bike },
   { name: 'Vehicle Pricing', href: '/admin/pricing', icon: Tag },
   { name: 'Bookings', href: '/admin/bookings', icon: ClipboardList },
+  { name: 'Extensions', href: '/admin/extensions', icon: Calendar },
+  { name: 'Return Appointments', href: '/admin/returns', icon: Calendar },
   { name: 'Vehicle Assignments', href: '/admin/assignments', icon: FileCheck },
   { name: 'Verified Riders', href: '/admin/riders', icon: Users },
   { name: 'Financial Ledger', href: '/admin/payments', icon: CreditCard },
@@ -137,3 +139,5 @@ export default function AdminLayout({
     </div>
   );
 }
+
+

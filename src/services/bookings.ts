@@ -2,7 +2,7 @@ import { and, desc, eq, gte, inArray, lte, ne, or } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 
-const openStatuses = ['PENDING', 'CONFIRMED', 'ACTIVE', 'EXTENSION_PENDING'] as const
+const openStatuses = ['PENDING', 'CONFIRMED', 'ACTIVE', 'EXTENSION_PENDING', 'OVERDUE'] as const
 
 export type RentalSummary = {
   bookingId: string
@@ -13,6 +13,7 @@ export type RentalSummary = {
   durationDays: number
   vehicleId: string
   vehicleName: string
+  manufacturingYear: number
   registrationNumber: string
   packageName: string
   dailyRate: number
@@ -21,6 +22,7 @@ export type RentalSummary = {
   remainingBalance: number
   depositAmount: number
   assignmentId: string | null
+  assignmentStart: Date | null
   startingOdometer: number | null
   endingOdometer: number | null
 }
@@ -48,10 +50,11 @@ export async function getRiderRentals(riderId: string): Promise<RentalSummary[]>
   const payments = await db.select({ bookingId: schema.payments.bookingId, type: schema.payments.paymentType, amount: schema.payments.amount })
     .from(schema.payments).where(eq(schema.payments.paymentStatus, 'SUCCESS'))
   const paymentTotals = new Map<string, number>()
-  for (const payment of payments) if (payment.type === 'RENTAL_BALANCE') {
-    paymentTotals.set(payment.bookingId, (paymentTotals.get(payment.bookingId) ?? 0) + Number(payment.amount))
-  }
-  const depositRows = await db.select({ bookingId: schema.depositTransactions.bookingId, type: schema.depositTransactions.transactionType, amount: schema.depositTransactions.amount })
+  const extensionTotals = new Map<string, number>()
+  for (const payment of payments) {
+    if (payment.type === 'RENTAL_BALANCE') paymentTotals.set(payment.bookingId, (paymentTotals.get(payment.bookingId) ?? 0) + Number(payment.amount))
+    if (payment.type === 'EXTENSION') extensionTotals.set(payment.bookingId, (extensionTotals.get(payment.bookingId) ?? 0) + Number(payment.amount))
+  }  const depositRows = await db.select({ bookingId: schema.depositTransactions.bookingId, type: schema.depositTransactions.transactionType, amount: schema.depositTransactions.amount })
     .from(schema.depositTransactions)
   const depositBalances = new Map<string, number>()
   for (const row of depositRows) {
@@ -67,14 +70,19 @@ export async function getRiderRentals(riderId: string): Promise<RentalSummary[]>
     durationDays: booking.totalDurationDays,
     vehicleId: vehicle.id,
     vehicleName: `${vehicle.manufacturer} ${vehicle.model}${vehicle.variant ? ` ${vehicle.variant}` : ''}`,
+    registrationPreview: `${vehicle.registrationNumber.slice(0, 2)} ••• ••• ${vehicle.registrationNumber.slice(-2)}`,
     registrationNumber: vehicle.registrationNumber,
+    manufacturingYear: vehicle.manufacturingYear,
+    fuelType: vehicle.fuelType,
+    vehicleCategory: vehicle.vehicleCategory,
     packageName: pkg.name,
     dailyRate: Number(snapshot.dailyRate),
-    totalRentalPrice: Number(snapshot.totalRentalPrice),
+    totalRentalPrice: Number(snapshot.totalRentalPrice) + (extensionTotals.get(booking.id) ?? 0),
     tokenAmount: Number(snapshot.bookingTokenAmount),
     remainingBalance: Math.max(0, Number(snapshot.remainingRentalBalance) - (paymentTotals.get(booking.id) ?? 0)),
     depositAmount: depositBalances.get(booking.id) ?? 0,
     assignmentId: assignment?.id ?? null,
+    assignmentStart: assignment?.assignmentStart ?? null,
     startingOdometer: assignment?.startingOdometer ?? null,
     endingOdometer: assignment?.endingOdometer ?? null,
   }))
@@ -97,7 +105,10 @@ export async function getAvailableRentalOptions() {
   return rows.map(({ vehicle, pricing, pkg }) => ({
     vehicleId: vehicle.id,
     vehicleName: `${vehicle.manufacturer} ${vehicle.model}${vehicle.variant ? ` ${vehicle.variant}` : ''}`,
-    registrationNumber: vehicle.registrationNumber,
+    registrationPreview: `${vehicle.registrationNumber.slice(0, 2)} ••• ••• ${vehicle.registrationNumber.slice(-2)}`,
+    manufacturingYear: vehicle.manufacturingYear,
+    fuelType: vehicle.fuelType,
+    vehicleCategory: vehicle.vehicleCategory,
     packageId: pkg.id,
     packageName: pkg.name,
     packageCode: pkg.code,
@@ -255,7 +266,7 @@ export async function updateBookingStatus(bookingId: string, adminId: string, de
 export async function recordBookingPayment(input: {
   bookingId: string
   adminId: string
-  type: 'BOOKING_TOKEN' | 'RENTAL_BALANCE' | 'SECURITY_DEPOSIT'
+  type: 'BOOKING_TOKEN' | 'RENTAL_BALANCE' | 'SECURITY_DEPOSIT' | 'EXTENSION'
   method: 'UPI' | 'BANK_TRANSFER' | 'CASH' | 'CARD'
   reference?: string
 }) {
@@ -264,16 +275,24 @@ export async function recordBookingPayment(input: {
     if (!booking || !['CONFIRMED', 'ACTIVE'].includes(booking.bookingStatus)) throw new Error('Payments can only be recorded for a confirmed booking.')
     const [snapshot] = await tx.select().from(schema.bookingPriceSnapshots).where(eq(schema.bookingPriceSnapshots.bookingId, input.bookingId)).limit(1)
     if (!snapshot) throw new Error('The booking has no frozen price snapshot.')
+    const [approvedExtension] = input.type === 'EXTENSION'
+      ? await tx.select().from(schema.bookingExtensions).where(and(
+        eq(schema.bookingExtensions.bookingId, input.bookingId),
+        eq(schema.bookingExtensions.status, 'APPROVED_AWAITING_PAYMENT'),
+      )).for('update').limit(1)
+      : []
+    if (input.type === 'EXTENSION' && !approvedExtension) throw new Error('There is no approved extension awaiting payment.')
     const expected = input.type === 'BOOKING_TOKEN'
       ? Number(snapshot.bookingTokenAmount)
       : input.type === 'RENTAL_BALANCE'
         ? Number(snapshot.remainingRentalBalance)
-        : Number(snapshot.securityDepositAmount)
-    const alreadyPaid = await tx.select({ id: schema.payments.id }).from(schema.payments).where(and(
-      eq(schema.payments.bookingId, input.bookingId), eq(schema.payments.paymentType, input.type), eq(schema.payments.paymentStatus, 'SUCCESS'),
-    )).limit(1)
-    if (alreadyPaid.length) throw new Error(`${input.type.replaceAll('_', ' ')} has already been recorded.`)
-    if (expected <= 0) throw new Error('There is no amount due for this payment type.')
+        : input.type === 'SECURITY_DEPOSIT' ? Number(snapshot.securityDepositAmount) : Number(approvedExtension?.additionalRentalAmount ?? 0)
+    if (input.type !== 'EXTENSION') {
+      const alreadyPaid = await tx.select({ id: schema.payments.id }).from(schema.payments).where(and(
+        eq(schema.payments.bookingId, input.bookingId), eq(schema.payments.paymentType, input.type), eq(schema.payments.paymentStatus, 'SUCCESS'),
+      )).limit(1)
+      if (alreadyPaid.length) throw new Error(`${input.type.replaceAll('_', ' ')} has already been recorded.`)
+    }    if (expected <= 0) throw new Error('There is no amount due for this payment type.')
     const [payment] = await tx.insert(schema.payments).values({
       paymentNumber: `PAY-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
       bookingId: input.bookingId,
@@ -292,6 +311,14 @@ export async function recordBookingPayment(input: {
       allocationType: input.type === 'SECURITY_DEPOSIT' ? 'SECURITY_DEPOSIT_LIABILITY' : 'RENTAL_REVENUE',
       amount: String(expected),
     })
+    if (input.type === 'EXTENSION' && approvedExtension) {
+      await tx.update(schema.bookingExtensions).set({ status: 'PAID', paymentId: payment.id }).where(eq(schema.bookingExtensions.id, approvedExtension.id))
+      await tx.update(schema.bookings).set({
+        endDate: approvedExtension.newEndDate,
+        totalDurationDays: booking.totalDurationDays + approvedExtension.additionalDays,
+        updatedAt: new Date(),
+      }).where(eq(schema.bookings.id, booking.id))
+    }
     if (input.type === 'SECURITY_DEPOSIT') await tx.insert(schema.depositTransactions).values({
       bookingId: input.bookingId,
       riderId: booking.riderId,
@@ -350,7 +377,7 @@ export async function completeRentalReturn(input: {
 }) {
   return db.transaction(async (tx) => {
     const [booking] = await tx.select().from(schema.bookings).where(eq(schema.bookings.id, input.bookingId)).for('update').limit(1)
-    if (!booking || booking.bookingStatus !== 'ACTIVE') throw new Error('Only active rentals can be returned.')
+    if (!booking || !['ACTIVE', 'OVERDUE'].includes(booking.bookingStatus)) throw new Error('Only active rentals can be returned.')
     const [assignment] = await tx.select().from(schema.vehicleAssignments).where(and(
       eq(schema.vehicleAssignments.bookingId, booking.id), eq(schema.vehicleAssignments.status, 'ACTIVE'),
     )).for('update').limit(1)
@@ -369,6 +396,7 @@ export async function completeRentalReturn(input: {
     }).returning()
     await tx.update(schema.vehicleAssignments).set({ status: 'CLOSED', endingOdometer: input.endingOdometer, assignmentEnd: new Date(), returnInspectionId: inspection.id, updatedAt: new Date() }).where(eq(schema.vehicleAssignments.id, assignment.id))
     await tx.update(schema.bookings).set({ bookingStatus: 'COMPLETED', updatedAt: new Date() }).where(eq(schema.bookings.id, booking.id))
+    await tx.update(schema.rentalReturnRequests).set({ status: 'COMPLETED', updatedAt: new Date() }).where(and(eq(schema.rentalReturnRequests.bookingId, booking.id), inArray(schema.rentalReturnRequests.status, ['REQUESTED', 'CONFIRMED'])))
     const nextStatus = vehicle.complianceStatus === 'VERIFIED_COMPLIANT' ? 'AVAILABLE' : 'UNAVAILABLE'
     await tx.update(schema.vehicles).set({ operationalStatus: nextStatus, currentOdometer: input.endingOdometer, updatedAt: new Date() }).where(eq(schema.vehicles.id, vehicle.id))
     await tx.insert(schema.vehicleStatusHistory).values({ vehicleId: vehicle.id, fromStatus: vehicle.operationalStatus, toStatus: nextStatus, reason: 'Rental return inspection completed', changedBy: input.adminId })
@@ -439,3 +467,12 @@ export async function settleSecurityDeposit(input: {
     }
   })
 }
+
+
+
+
+
+
+
+
+

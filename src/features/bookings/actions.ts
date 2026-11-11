@@ -56,7 +56,7 @@ export async function recordBookingPaymentAction(formData: FormData) {
   if (!canModifyFinancials(session.role)) throw new Error('Only an administrator can record rental payments.')
   const parsed = z.object({
     bookingId: z.string().uuid(),
-    type: z.enum(['BOOKING_TOKEN', 'RENTAL_BALANCE', 'SECURITY_DEPOSIT']),
+    type: z.enum(['BOOKING_TOKEN', 'RENTAL_BALANCE', 'SECURITY_DEPOSIT', 'EXTENSION']),
     method: z.enum(['UPI', 'BANK_TRANSFER', 'CASH', 'CARD']),
     reference: z.string().trim().max(150).optional(),
   }).safeParse({
@@ -66,6 +66,7 @@ export async function recordBookingPaymentAction(formData: FormData) {
   if (!parsed.success) throw new Error('Check the payment details and try again.')
   await recordBookingPayment({ ...parsed.data, adminId: session.userId })
   revalidatePath('/admin/bookings')
+  revalidatePath('/admin/extensions')
   revalidatePath('/rider/my-rental')
 }
 
@@ -158,3 +159,8 @@ export async function logoutAction() {
   await clearSessionCookie()
   redirect('/login')
 }
+
+
+
+
+

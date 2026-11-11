@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'RideOps — Commercial Vehicle & Fleet Rental Management',
+  title: 'Rerider — Commercial Vehicle & Rental Management',
   description:
     'Enterprise fleet operations, booking lifecycle, immutable accounting, and compliance platform in Kochi, Kerala.',
 };

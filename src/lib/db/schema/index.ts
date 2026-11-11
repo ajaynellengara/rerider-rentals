@@ -7,3 +7,4 @@ export * from './assignments';
 export * from './inspections';
 export * from './financials';
 export * from './maintenance';
+export * from './rider-workflows';

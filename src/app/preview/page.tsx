@@ -7,5 +7,6 @@ export const metadata: Metadata = {
 }
 
 export default function PreviewPage() {
-  return <PreviewConsole />
+  const supportPhone = process.env.RERIDER_SUPPORT_PHONE?.trim() ?? ''
+  return <PreviewConsole supportPhone={supportPhone} />
 }

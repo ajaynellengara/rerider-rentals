@@ -13,14 +13,14 @@ export async function GET(request: NextRequest) {
   let payload
   if (role === 'ADMIN') {
     payload = {
-      userId: 'dev-admin-001',
+      userId: 'a0000000-0000-0000-0000-000000000001',
       email: 'admin@rerider.com',
       name: 'Operations Manager',
       role: 'ADMIN' as const,
     }
   } else if (requestedEmail === 'anandhu.krishna@example.com') {
     payload = {
-      userId: 'dev-rider-001',
+      userId: 'a0000000-0000-0000-0000-000000000002',
       email: 'anandhu.krishna@example.com',
       name: 'Anandhu Krishna',
       role: 'RIDER' as const,
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     }
   } else if (requestedEmail === 'demo.diya@example.test') {
     payload = {
-      userId: 'dev-rider-002',
+      userId: 'a0000000-0000-0000-0000-000000000003',
       email: 'demo.diya@example.test',
       name: 'DEMO - Diya Menon',
       role: 'RIDER' as const,
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
   } else if (requestedEmail === 'demo.kabir@example.test') {
     payload = {
-      userId: 'dev-rider-003',
+      userId: 'a0000000-0000-0000-0000-000000000004',
       email: 'demo.kabir@example.test',
       name: 'DEMO - Kabir Thomas',
       role: 'RIDER' as const,
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
   } else {
     // Default to the primary live Google Sheet rider (Aarav Nair - Active Honda Dio/Activa rental)
     payload = {
-      userId: 'dev-rider-aarav',
+      userId: 'a0000000-0000-0000-0000-000000000005',
       email: requestedEmail || 'demo.aarav@example.test',
       name: 'DEMO - Aarav Nair',
       role: 'RIDER' as const,

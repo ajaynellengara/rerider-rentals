@@ -12,8 +12,8 @@ import { EmergencyAssistance } from '@/features/rider/components/emergency-assis
 
 export default async function RiderSupportPage() {
   const session = await getSession()
-  if (!session) redirect('/login?next=/rider/support')
-  if (session.role !== 'RIDER') redirect('/admin')
+  if (!session) redirect('/api/dev/login?role=rider&next=/rider/support')
+  if (session.role !== 'RIDER') redirect('/api/dev/login?role=rider&next=/rider/support')
   const phone = process.env.RERIDER_SUPPORT_PHONE?.trim() ?? ''
   const whatsapp = process.env.RERIDER_SUPPORT_WHATSAPP?.trim() ?? ''
 

@@ -286,7 +286,7 @@ export const FALLBACK_SHEET_DATA: Record<string, unknown[][]> = {
 export async function fetchTabRecords(
   tabName: SheetTabName
 ): Promise<{ records: SheetRowRecord[]; source: 'GOOGLE_SHEETS' | 'FALLBACK_STORE' }> {
-  const sheetId = process.env.GOOGLE_SHEET_ID || '1IRY6DPk3_E_wOHFrM-5mbE2gSQEULMxrE565nfWsdss'
+  const sheetId = (process.env.GOOGLE_SHEET_ID || '1IRY6DPk3_E_wOHFrM-5mbE2gSQEULMxrE565nfWsdss').replace(/^["'\s]+|["'\s]+$/g, '')
   const normalizedKey = normalizeHeader(tabName)
   const descriptor = TAB_DESCRIPTORS[normalizedKey] || {
     aliases: [tabName],

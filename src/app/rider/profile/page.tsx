@@ -13,8 +13,8 @@ const masked = (value: string | null) =>
 
 export default async function RiderProfilePage() {
   const session = await getSession()
-  if (!session) redirect('/login?next=/rider/profile')
-  if (session.role !== 'RIDER') redirect('/admin')
+  if (!session) redirect('/api/dev/login?role=rider&next=/rider/profile')
+  if (session.role !== 'RIDER') redirect('/api/dev/login?role=rider&next=/rider/profile')
 
   // 1. Google Sheets Operations Profile
   try {

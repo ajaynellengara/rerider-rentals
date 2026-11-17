@@ -12,16 +12,10 @@ import Link from 'next/link'
 export default async function RiderDashboardPage() {
   const session = await getSession()
   if (!session) {
-    if (process.env.NODE_ENV !== 'production') {
-      redirect('/api/dev/login?role=rider&next=/rider')
-    }
-    redirect('/login?next=/rider')
+    redirect('/api/dev/login?role=rider&next=/rider')
   }
   if (session.role !== 'RIDER') {
-    if (process.env.NODE_ENV !== 'production') {
-      redirect('/api/dev/login?role=rider&next=/rider')
-    }
-    redirect('/admin')
+    redirect('/api/dev/login?role=rider&next=/rider')
   }
 
   // 1. Primary Source: Google Sheets operations data

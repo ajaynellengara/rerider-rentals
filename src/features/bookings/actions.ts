@@ -235,7 +235,7 @@ export async function loginAction(_previous: BookingActionState, formData: FormD
     (parsed.data.password === 'password123' || parsed.data.password === 'rider123' || parsed.data.password === 'rider123456')
   ) {
     await setSessionCookie({
-      userId: 'dev-rider-aarav',
+      userId: 'a0000000-0000-0000-0000-000000000005',
       email: 'demo.aarav@example.test',
       name: 'DEMO - Aarav Nair',
       role: 'RIDER',
@@ -249,7 +249,7 @@ export async function loginAction(_previous: BookingActionState, formData: FormD
     (parsed.data.password === 'password123' || parsed.data.password === 'rider123' || parsed.data.password === 'rider123456')
   ) {
     await setSessionCookie({
-      userId: 'dev-rider-diya',
+      userId: 'a0000000-0000-0000-0000-000000000003',
       email: 'demo.diya@example.test',
       name: 'DEMO - Diya Menon',
       role: 'RIDER',
@@ -263,7 +263,7 @@ export async function loginAction(_previous: BookingActionState, formData: FormD
     (parsed.data.password === 'password123' || parsed.data.password === 'rider123' || parsed.data.password === 'rider123456')
   ) {
     await setSessionCookie({
-      userId: 'dev-rider-kabir',
+      userId: 'a0000000-0000-0000-0000-000000000004',
       email: 'demo.kabir@example.test',
       name: 'DEMO - Kabir Thomas',
       role: 'RIDER',
@@ -277,7 +277,7 @@ export async function loginAction(_previous: BookingActionState, formData: FormD
     (parsed.data.password === 'password123' || parsed.data.password === 'rider123' || parsed.data.password === 'rider123456')
   ) {
     await setSessionCookie({
-      userId: 'dev-rider-001',
+      userId: 'a0000000-0000-0000-0000-000000000002',
       email: 'anandhu.krishna@example.com',
       name: 'Anandhu Krishna',
       role: 'RIDER',
@@ -291,7 +291,7 @@ export async function loginAction(_previous: BookingActionState, formData: FormD
     (parsed.data.password === 'password123' || parsed.data.password === 'admin123' || parsed.data.password === 'admin123456')
   ) {
     await setSessionCookie({
-      userId: 'dev-admin-001',
+      userId: 'a0000000-0000-0000-0000-000000000001',
       email: 'admin@rerider.com',
       name: 'Operations Manager',
       role: 'ADMIN',

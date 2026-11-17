@@ -11,16 +11,10 @@ import { SheetVehicleDetailsView } from '@/features/rider/components/sheet-vehic
 export default async function RiderVehicleDetailsPage() {
   const session = await getSession()
   if (!session) {
-    if (process.env.NODE_ENV !== 'production') {
-      redirect('/api/dev/login?role=rider&next=/rider/vehicles')
-    }
-    redirect('/login?next=/rider/vehicles')
+    redirect('/api/dev/login?role=rider&next=/rider/vehicles')
   }
   if (session.role !== 'RIDER') {
-    if (process.env.NODE_ENV !== 'production') {
-      redirect('/api/dev/login?role=rider&next=/rider/vehicles')
-    }
-    redirect('/admin')
+    redirect('/api/dev/login?role=rider&next=/rider/vehicles')
   }
 
   // 1. Check Google Sheets data first

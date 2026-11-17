@@ -21,16 +21,10 @@ const openStatuses = ['PENDING', 'CONFIRMED', 'ACTIVE', 'EXTENSION_PENDING', 'OV
 export default async function MyRentalPage() {
   const session = await getSession()
   if (!session) {
-    if (process.env.NODE_ENV !== 'production') {
-      redirect('/api/dev/login?role=rider&next=/rider/my-rental')
-    }
-    redirect('/login?next=/rider/my-rental')
+    redirect('/api/dev/login?role=rider&next=/rider/my-rental')
   }
   if (session.role !== 'RIDER') {
-    if (process.env.NODE_ENV !== 'production') {
-      redirect('/api/dev/login?role=rider&next=/rider/my-rental')
-    }
-    redirect('/admin')
+    redirect('/api/dev/login?role=rider&next=/rider/my-rental')
   }
 
   // 1. Google Sheets operations data

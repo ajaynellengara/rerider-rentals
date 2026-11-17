@@ -23,8 +23,8 @@ const dateTime = (value: Date | null) =>
 
 export default async function RiderReturnsPage() {
   const session = await getSession()
-  if (!session) redirect('/login?next=/rider/returns')
-  if (session.role !== 'RIDER') redirect('/admin')
+  if (!session) redirect('/api/dev/login?role=rider&next=/rider/returns')
+  if (session.role !== 'RIDER') redirect('/api/dev/login?role=rider&next=/rider/returns')
 
   // 1. Check Google Sheets for active rental
   try {

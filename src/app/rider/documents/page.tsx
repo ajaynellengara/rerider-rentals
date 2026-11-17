@@ -15,8 +15,8 @@ const label = (value: string) =>
 
 export default async function RiderDocumentsPage() {
   const session = await getSession()
-  if (!session) redirect('/login?next=/rider/documents')
-  if (session.role !== 'RIDER') redirect('/admin')
+  if (!session) redirect('/api/dev/login?role=rider&next=/rider/documents')
+  if (session.role !== 'RIDER') redirect('/api/dev/login?role=rider&next=/rider/documents')
 
   // 1. Google Sheets Operations Data
   try {

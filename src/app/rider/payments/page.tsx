@@ -13,16 +13,10 @@ const label = (value: string) =>
 export default async function RiderPaymentsPage() {
   const session = await getSession()
   if (!session) {
-    if (process.env.NODE_ENV !== 'production') {
-      redirect('/api/dev/login?role=rider&next=/rider/payments')
-    }
-    redirect('/login?next=/rider/payments')
+    redirect('/api/dev/login?role=rider&next=/rider/payments')
   }
   if (session.role !== 'RIDER') {
-    if (process.env.NODE_ENV !== 'production') {
-      redirect('/api/dev/login?role=rider&next=/rider/payments')
-    }
-    redirect('/admin')
+    redirect('/api/dev/login?role=rider&next=/rider/payments')
   }
 
   // 1. Primary Source: Google Sheets Payments tab

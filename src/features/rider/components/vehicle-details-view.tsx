@@ -24,7 +24,7 @@ export async function RiderVehicleDetailsView({ riderId }: { riderId: string }) 
           href="/rider"
           className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:text-blue-900"
         >
-          <ChevronLeft className="h-4 w-4" /> Back to Dashboard
+          <ChevronLeft className="h-4 w-4" /> Back
         </Link>
         <Card>
           <CardContent className="p-5">
@@ -66,7 +66,7 @@ export async function RiderVehicleDetailsView({ riderId }: { riderId: string }) 
         href="/rider"
         className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-blue-700 hover:text-blue-900"
       >
-        <ChevronLeft className="h-4 w-4" /> Back to Rider Dashboard
+        <ChevronLeft className="h-4 w-4" /> Back
       </Link>
 
       {/* Hero Blue Gradient Card */}

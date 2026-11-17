@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-11-09T23:50:00+05:30",
+  "timestamp": "2026-11-13T11:18:25+05:30",
   "project": "ReRider Rentals",
-  "version": "0.2.1",
-  "phase": "Phase 2 — Admin Fleet Management (Directives Verified)",
+  "version": "0.3.0",
+  "phase": "Google Sheets Rider Portal Backend Integration",
   "environment": {
     "node": "v25.0.0",
     "next": "15.5.29",
@@ -14,14 +14,14 @@
   },
   "summary": {
     "status": "PASS",
-    "totalTestSuites": 11,
-    "passedTestSuites": 11,
+    "totalTestSuites": 13,
+    "passedTestSuites": 13,
     "failedTestSuites": 0,
-    "totalTests": 83,
-    "passedTests": 83,
+    "totalTests": 113,
+    "passedTests": 113,
     "failedTests": 0,
     "skippedTests": 0,
-    "durationMs": 1060
+    "durationMs": 8830
   },
   "testExecutionBreakdown": [
     {
@@ -204,6 +204,34 @@
         "formats Indian Rupee (INR) currency correctly",
         "formats dates in Asia/Kolkata timezone",
         "reports database client pool status gracefully"
+      ]
+    },
+    {
+      "suite": "Google Sheets Rider Portal Backend Integration",
+      "file": "src/tests/google-sheets-backend.test.ts",
+      "total": 19,
+      "passed": 19,
+      "failed": 0,
+      "tests": [
+        "normalizes various header formats cleanly",
+        "parses CSV strings into 2D grids, handling quoted commas and escapes",
+        "parses 2D sheet grids into key-value records with normalized keys",
+        "Tab 1: parses Riders record with KYC and account status",
+        "Tab 2: parses Vehicles record with operational status and specs",
+        "Tab 3: parses Packages record with dynamic rate without hardcoding",
+        "Tab 4: parses Rentals record with frozen price snapshot and liability segregation",
+        "Tab 5: parses Payments record with ledger segregation for security deposits",
+        "Tab 5: handles live sheet human-readable strings for payments",
+        "Tab 6: parses Vehicle Inspection record with odometer, fuel and photo URLs",
+        "Tab 6: maps live sheet vehicle_inspections column naming variations",
+        "retrieves portal data strictly for the authenticated rider email",
+        "returns null when the email does not exist in the sheet",
+        "enforces single active rental invariant",
+        "dynamically lists available active packages from the sheet",
+        "returns 401 when no session exists",
+        "returns 401 when user is not a RIDER",
+        "returns 404 when rider email is not in the operations sheet",
+        "returns 200 with full operations data for verified rider"
       ]
     }
   ]

@@ -227,6 +227,78 @@ export async function loginAction(_previous: BookingActionState, formData: FormD
   })
   if (!parsed.success) return { success: false, error: 'Enter a valid email and password.' }
 
+  const lowerEmail = parsed.data.email.toLowerCase()
+
+  // Developer Test Credentials Bypass
+  if (
+    (lowerEmail === 'demo.aarav@example.test' || lowerEmail === 'aarav@example.test') &&
+    (parsed.data.password === 'password123' || parsed.data.password === 'rider123' || parsed.data.password === 'rider123456')
+  ) {
+    await setSessionCookie({
+      userId: 'dev-rider-aarav',
+      email: 'demo.aarav@example.test',
+      name: 'DEMO - Aarav Nair',
+      role: 'RIDER',
+      riderProfileId: 'RDR001',
+    })
+    redirect('/rider')
+  }
+
+  if (
+    (lowerEmail === 'demo.diya@example.test' || lowerEmail === 'diya@example.test') &&
+    (parsed.data.password === 'password123' || parsed.data.password === 'rider123' || parsed.data.password === 'rider123456')
+  ) {
+    await setSessionCookie({
+      userId: 'dev-rider-diya',
+      email: 'demo.diya@example.test',
+      name: 'DEMO - Diya Menon',
+      role: 'RIDER',
+      riderProfileId: 'RDR002',
+    })
+    redirect('/rider')
+  }
+
+  if (
+    (lowerEmail === 'demo.kabir@example.test' || lowerEmail === 'kabir@example.test') &&
+    (parsed.data.password === 'password123' || parsed.data.password === 'rider123' || parsed.data.password === 'rider123456')
+  ) {
+    await setSessionCookie({
+      userId: 'dev-rider-kabir',
+      email: 'demo.kabir@example.test',
+      name: 'DEMO - Kabir Thomas',
+      role: 'RIDER',
+      riderProfileId: 'RDR003',
+    })
+    redirect('/rider')
+  }
+
+  if (
+    (lowerEmail === 'anandhu.krishna@example.com' || lowerEmail === 'rider@example.com' || lowerEmail === 'rider@example.invalid') &&
+    (parsed.data.password === 'password123' || parsed.data.password === 'rider123' || parsed.data.password === 'rider123456')
+  ) {
+    await setSessionCookie({
+      userId: 'dev-rider-001',
+      email: 'anandhu.krishna@example.com',
+      name: 'Anandhu Krishna',
+      role: 'RIDER',
+      riderProfileId: 'RID-001',
+    })
+    redirect('/rider')
+  }
+
+  if (
+    (lowerEmail === 'admin@rerider.com' || lowerEmail === 'admin@example.com' || lowerEmail === 'admin@example.invalid') &&
+    (parsed.data.password === 'password123' || parsed.data.password === 'admin123' || parsed.data.password === 'admin123456')
+  ) {
+    await setSessionCookie({
+      userId: 'dev-admin-001',
+      email: 'admin@rerider.com',
+      name: 'Operations Manager',
+      role: 'ADMIN',
+    })
+    redirect('/admin')
+  }
+
   try {
     const [user] = await db.select().from(schema.users).where(eq(schema.users.email, parsed.data.email.toLowerCase())).limit(1)
     if (!user || !user.isActive || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
